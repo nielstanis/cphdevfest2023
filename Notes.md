@@ -33,8 +33,8 @@ Then we're going to do the following things:
   - `certutil -decode pub.b64 pub.crt`
   - View certificate details in Windows Explorer
 - Did you notice how long the certificate was valid?
-- Now verify the blob with following command:
-  `cosign verify-blob --cert pub.crt --signature cphdevfest.txt.sig cphdevfest.txt`
+- Now verify the blob with following command, replace certificate-identity with yours and oidc with the one you've chosen:
+  `cosign verify-blob --cert pub.crt --certificate-identity nielstanis@live.nl --certificate-oidc-issuer https://github.com/login/oauth --signature cphdevfest.txt.sig cphdevfest.txt`
 - Now change the `cphdevfest.txt` file and verify the blob again.
 
 # Git Commit Signing
