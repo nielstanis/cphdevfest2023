@@ -34,7 +34,9 @@ Then we're going to do the following things:
   - View certificate details in Windows Explorer
 - Did you notice how long the certificate was valid?
 - Now verify the blob with following command, replace certificate-identity with yours and oidc with the one you've chosen:
-  `cosign verify-blob --cert pub.crt --certificate-identity nielstanis@live.nl --certificate-oidc-issuer https://github.com/login/oauth --signature cphdevfest.txt.sig cphdevfest.txt`
+  - GitHub: `cosign verify-blob --cert pub.crt --certificate-identity nielstanis@live.nl --certificate-oidc-issuer https://github.com/login/oauth --signature cphdevfest.txt.sig cphdevfest.txt`
+  - Google: `cosign verify-blob --cert pub.crt --certificate-identity niels.tanis@gmail.com --certificate-oidc-issuer  https://accounts.google.com --signature cphdevfest.txt.sig cphdevfest.txt`
+  - GitHub: `cosign verify-blob --cert pub.crt --certificate-identity nielstanis@live.nl --certificate-oidc-issuer https://login.microsoftonline.com --signature cphdevfest.txt.sig cphdevfest.txt`
 - Now change the `cphdevfest.txt` file and verify the blob again.
 
 # Git Commit Signing
