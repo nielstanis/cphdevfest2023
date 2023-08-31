@@ -10,6 +10,10 @@ Alternatively download the platform specific binaries from here:
 - https://github.com/sigstore/cosign/releases/tag/v2.1.1
 - https://github.com/sigstore/rekor/releases/tag/v1.2.2
 
+# GitSign
+Read more about GitSign installation here: https://github.com/sigstore/gitsign/blob/main/README.md
+
+Or grab platform specific binaries here: https://github.com/sigstore/gitsign/releases/tag/v0.7.1
 
 # JQ
 
