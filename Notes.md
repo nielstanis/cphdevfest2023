@@ -335,7 +335,8 @@ ENTRYPOINT ["dotnet", "docwebgen.dll"]
 - Optional; enable `gitsign` for this repo as described earlier. 
 - Add changes to it `git add .` and commit `git commit -m "Website" -S` (lose `-S` if your not signing the commit). 
 - Create a new GitHub Repo and call it `DocWebGen` and push changes to that one. 
-- We need to create a GitHub Actions pipeline (main.yml) that looks following, make sure to put in the right repo name to store the created image. 
+- We need to create a GitHub Actions pipeline (main.yml) that looks following, make sure to put in the right repo name to store the created image by replacing `GITHUBACCOUNT` with your own.
+- Right now we work on tags; we should work on sha hashes of images and actions!
 
 ```yaml
 name: container
@@ -412,19 +413,6 @@ jobs:
           context: .
           push: true
           tags: ghcr.io/GITHUBACCOUNT/docwebgen:latest
-
-      - uses: sigstore/cosign-installer@v3.1.1
-
-      - name: Sign the images
-        run: |
-          cosign sign --yes \
-            ghcr.io/GITHUBACCOUNT/docwebgen:latest
-
-      - name: Verify the pushed tags
-        run: |
-          cosign verify ghcr.io/GITHUBACCOUNT/docwebgen:latest \
-          --certificate-identity https://github.com/GITHUBACCOUNT/docwebgen/.github/workflows/main.yml@refs/heads/main \
-          --certificate-oidc-issuer https://token.actions.githubusercontent.com
           
       - uses: anchore/sbom-action@v0
         with:
@@ -437,7 +425,7 @@ Consider moving to distro-less Linux distributions to reduce attack surface this
 
 ## Lab 9 Cosign Container
 
-Now we need to add both the signing and verification with Cosign into our build pipeline. This is seen in the steps with `cosign sign` and `cosign verify` below. 
+Now we need to add both the signing and verification with Cosign into our build pipeline. This is seen in the steps with `cosign sign` and `cosign verify` below. Make sure you replace `GITHUBACCOUNT` with your own one.  
 
 ```yaml
 name: container
