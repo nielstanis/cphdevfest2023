@@ -335,7 +335,7 @@ ENTRYPOINT ["dotnet", "docwebgen.dll"]
 - Optional; enable `gitsign` for this repo as described earlier. 
 - Add changes to it `git add .` and commit `git commit -m "Website" -S` (lose `-S` if your not signing the commit). 
 - Create a new GitHub Repo and call it `DocWebGen` and push changes to that one. 
-- We need to create a GitHub Actions pipeline that looks following, make sure to put in the right repo name to store the created image. 
+- We need to create a GitHub Actions pipeline (main.yml) that looks following, make sure to put in the right repo name to store the created image. 
 
 ```yaml
 name: container
