@@ -1,9 +1,8 @@
-# Supply Chain Workshop
+# Securing your .NET application software supply-chain, the practical approach! 
 
-- Introduction about the problem?
-- Focus on _producing_ software
-- Focus on _consuming_ software
-- The commands used in this workshop will be running on either MacOSX and/or Linux (WSL) with Windows alternatives; but we'll work it out once we get there ;)
+With our complete software development process becoming more complex we also got a lot more security problems to deal with. What starts with code and ends with releasing/deploying software is also being referred at as the software supply chain. Over the last years we've seen some big security incidents tied to the software supply chain and the software industry acknowledged there was a need for action. And today there is a lot to choose from, but what will be the most effective things to do?
+
+What to expect; we're doing some introductions/overviews on the different area's followed by labs. We're going to focus on both producing and consuming software. The commands used in this workshop will be running on either MacOSX and/or Linux (WSL) with Windows alternatives; but we'll work it out once we get there ;)
 
 # Introducing DocGenerator Project
 
@@ -19,10 +18,10 @@ Or grab the platform specific binaries from the last releases for:
 - https://github.com/sigstore/rekor/releases
 - https://github.com/jqlang/jq/releases
 
-Then do the following things:
+Then we're going to do the following things:
 
 - `echo "Hello København" >> cphdevfest.txt`
-- `COSIGN_EXPERIMENTAL=1 cosign sign-blob --rekor-url https://rekor.sigstore.dev --oidc-issuer https://oauth2.sigstore.dev/auth cphdevfest.txt` We need the ID returned for the next step. 
+- `cosign sign-blob --rekor-url https://rekor.sigstore.dev --oidc-issuer https://oauth2.sigstore.dev/auth cphdevfest.txt` We need the ID returned for the next step. 
 - `rekor-cli get --log-index IDHERE --format json | jq > output.json`
 - MacOSX/Linux
   - `cat output.json | jq -r '.Body.HashedRekordObj.signature.content' > cphdevfest.txt.sig`
@@ -33,7 +32,7 @@ Then do the following things:
   - `type output.json | jq -r '.Body.HashedRekordObj.signature.publicKey.content' > pub.b64`
   - `certutil -decode pub.b64 pub.crt`
   - View certificate details in Windows Explorer
-- `COSIGN_EXPERIMENTAL=1 cosign verify-blob --cert pub.crt --signature cphdevfest.txt.sig cphdevfest.txt`
+- `cosign verify-blob --cert pub.crt --signature cphdevfest.txt.sig cphdevfest.txt`
 
 # Git Commit Signing
 
@@ -239,7 +238,7 @@ jobs:
       run: dotnet build -c Release -o .
     - name: Test
       run: dotnet test --no-build --verbosity normal
-    - name: Install CylconeDx in dotnet cli
+    - name: Install CycloneDX in dotnet cli
       run: dotnet tool install --global CycloneDX
     - name: CycloneDX .NET Generate SBOM
       run: dotnet CycloneDX docgenerator.csproj -j -o . 
@@ -281,6 +280,13 @@ jobs:
   - MacOSX/Linux: `shasum -a 256 docgenerator.1.0.0.nupkg bom.json` 
   - Windows: `certUtil -hashfile docgenerator.1.0.0.nupkg SHA256` and `certUtil -hashfile bom.json SHA256`
 - It also signs the generated provenance that can be verified against the public information on SigStore system, which is described earlier. 
+
+# Secure Supply Chain Consumption Framework (S2C2F)
+
+The Secure Supply Chain Consumption Framework (S2C2F) is a security assurance and risk reduction process that is focused on securing how developers consume open source software. As a Microsoft-wide initiative since 2019, the S2C2F provides security guidance and tools throughout the developer inner- loop and outer-loop processes that have played a critical role in defending and preventing supply chain attacks through consumption of open source software across Microsoft.
+
+https://www.microsoft.com/en-us/securityengineering/opensource/osssscframeworkguide 
+https://github.com/ossf/s2c2f/blob/main/specification/Secure_Supply_Chain_Consumption_Framework_(S2C2F).pdf 
 
 # ASP.NET MVC that uses DocGenerator
 
@@ -363,12 +369,8 @@ jobs:
         with:
           context: .
           push: true
-          tags: ghcr.io/YOURREPOHERE/docwebgen:latest
+          tags: ghcr.io/GITHUBACCOUNT/docwebgen:latest
 ```
-
-# Secure Supply Chain Consumption Framework (S2C2F)
-
-The Secure Supply Chain Consumption Framework (S2C2F) is a security assurance and risk reduction process that is focused on securing how developers consume open source software. As a Microsoft-wide initiative since 2019, the S2C2F provides security guidance and tools throughout the developer inner- loop and outer-loop processes that have played a critical role in defending and preventing supply chain attacks through consumption of open source software across Microsoft.
 
 # Docker image + Syft SBOM
 
@@ -381,40 +383,52 @@ We can add this pretty easily to our build pipeline based on the following lab.
 name: container
 
 on:
-    push:
+  push:
     tags:        
-        - v1             # Push events to v1 tag
-        - v1.*           # Push events to v1.0, v1.1, and v1.9 tags
-    workflow_dispatch:
-
+      - v1             # Push events to v1 tag
+      - v1.*           # Push events to v1.0, v1.1, and v1.9 tags
+  workflow_dispatch:
+    
 jobs:
-build:
-runs-on: ubuntu-latest
-permissions:
-    packages: write
-    id-token: write
+  build:
+    runs-on: ubuntu-latest
+    permissions:
+      packages: write
+      id-token: write
 
-steps:
-    - uses: actions/checkout@v1
+    steps:
+      - uses: actions/checkout@v3.6.0
 
-    - name: Login to GitHub
-      uses: docker/login-action@v1.9.0
-      with:
-        registry: ghcr.io
-        username: ${{ github.actor }}
-        password: ${{ secrets.GITHUB_TOKEN }}
+      - name: Login to GitHub
+        uses: docker/login-action@v2.2.0
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
 
-    - name: build+push
-      uses: docker/build-push-action@v2.7.0
-      with:
-        context: .
-        push: true
-        tags: ghcr.io/YOURREPOHERE/docwebgen:latest
-        
-    - uses: anchore/sbom-action@v0
-      with:
-        image: ghcr.io/YOURREPOHERE/docwebgen:latest
+      - name: build+push
+        uses: docker/build-push-action@v4.1.1
+        with:
+          context: .
+          push: true
+          tags: ghcr.io/GITHUBACCOUNT/docwebgen:latest
 
+      - uses: sigstore/cosign-installer@v3.1.1
+
+      - name: Sign the images
+        run: |
+          cosign sign --yes \
+            ghcr.io/GITHUBACCOUNT/docwebgen:latest
+
+      - name: Verify the pushed tags
+        run: |
+          cosign verify ghcr.io/GITHUBACCOUNT/docwebgen:latest \
+          --certificate-identity https://github.com/GITHUBACCOUNT/docwebgen/.github/workflows/main.yml@refs/heads/main \
+          --certificate-oidc-issuer https://token.actions.githubusercontent.com
+          
+      - uses: anchore/sbom-action@v0
+        with:
+          image: ghcr.io/GITHUBACCOUNT/docwebgen:latest
 ```
 
 # Ubuntu Chiseled and Chainguard Wolfi
@@ -443,40 +457,38 @@ jobs:
       id-token: write
 
     steps:
-      - uses: actions/checkout@v1
+      - uses: actions/checkout@v3.6.0
 
       - name: Login to GitHub
-        uses: docker/login-action@v1.9.0
+        uses: docker/login-action@v2.2.0
         with:
           registry: ghcr.io
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
 
       - name: build+push
-        uses: docker/build-push-action@v2.7.0
+        uses: docker/build-push-action@v4.1.1
         with:
           context: .
           push: true
-          tags: ghcr.io/YOURREPO/docwebgen:latest
+          tags: ghcr.io/GITHUBACCOUNT/docwebgen:latest
 
-      - uses: sigstore/cosign-installer@main
+      - uses: sigstore/cosign-installer@v3.1.1
 
       - name: Sign the images
         run: |
-          cosign sign \
-            ghcr.io/YOURREPO/docwebgen:latest
-        env:
-          COSIGN_EXPERIMENTAL: 1
-
+          cosign sign --yes \
+            ghcr.io/GITHUBACCOUNT/docwebgen:latest
+  
       - name: Verify the pushed tags
-        run: cosign verify ghcr.io/YOURREPO/docwebgen:latest
-        env:
-          COSIGN_EXPERIMENTAL: 1
+        run: |
+          cosign verify ghcr.io/GITHUBACCOUNT/docwebgen:latest \
+          --certificate-identity https://github.com/GITHUBACCOUNT/docwebgen/.github/workflows/main.yml@refs/heads/main \
+          --certificate-oidc-issuer https://token.actions.githubusercontent.com
           
       - uses: anchore/sbom-action@v0
         with:
-          image: ghcr.io/YOURREPO/docwebgen:latest
-
+          image: ghcr.io/GITHUBACCOUNT/docwebgen:latest
 ```
 
 We can get cosign (if installed locally) to verify as well, it also makes sense to look into the generated data by doing the following:
@@ -484,7 +496,7 @@ We can get cosign (if installed locally) to verify as well, it also makes sense 
 - `rekor-cli get --log-index IDREG --format json | jq > output.json`
 - `cat output.json | jq -r '.Body.HashedRekordObj.signature.publicKey.content' | base64 -d > pub.crt`
 - `openssl x509 -noout -text -in pub.crt`
-- `COSIGN_EXPERIMENTAL=1 cosign verify ghcr.io/YOURREPOHERE/docwebgen:latest`
+- `cosign verify ghcr.io/GITHUBACCOUNT/docwebgen:latest`
 
 # Hacked now what?
 
