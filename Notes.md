@@ -32,7 +32,10 @@ Then we're going to do the following things:
   - `type output.json | jq -r '.Body.HashedRekordObj.signature.publicKey.content' > pub.b64`
   - `certutil -decode pub.b64 pub.crt`
   - View certificate details in Windows Explorer
-- `cosign verify-blob --cert pub.crt --signature cphdevfest.txt.sig cphdevfest.txt`
+- Did you notice how long the certificate was valid?
+- Now verify the blob with following command:
+  `cosign verify-blob --cert pub.crt --signature cphdevfest.txt.sig cphdevfest.txt`
+- Now change the `cphdevfest.txt` file and verify the blob again.
 
 # Git Commit Signing
 
@@ -50,7 +53,7 @@ In order to start create a fork of the `https://github.com/nielstanis/docgenerat
 Make sure you're enabling Actions and execute the current .NET build available to generate the output. 
 Clone the repo to local location on your machine. 
 
-Now we need to have GitSign installed go to the url below and download the platform based binaries or install with one of the package managers for your system:
+Now we need to have GitSign installed and runnable. If you have not done that go to the url below and download the platform based binaries or install with one of the package managers for your system:
 https://github.com/sigstore/gitsign/releases
 
 Then in our git directory for the `docgenerator` we're going to configure it for the _single_ repository.
@@ -68,7 +71,7 @@ And now we're going push some changes to the repo.
 ```sh
 echo "Hello København" >> cphdevfest.txt
 git add .
-git commit -S -m "Hello DevFest!" #starts OICD flow in external browser
+git commit -S -m "Hello DevFest!" #starts OICD flow in external browser, walk through
 git push origin main
 ```
 
@@ -95,7 +98,8 @@ Unfortunately the `verified` won't be shown in case of use of `gitsign`, this is
   - Windows:
     - `more < ConsoleApp/bin/Debug/net7.0/ConsoleApp.dll | findstr "." >> ConsoleAppStrings`
     - `more < ConsoleApp2/bin/Debug/net7.0/ConsoleApp.dll | findstr "." >> ConsoleApp2Strings`
-  - `code -r --diff ConsoleAppStrings ConsoleApp2Strings`
+  - What are the differences? If you have VS Code on your machine consider doing the following:
+    `code -r --diff ConsoleAppStrings ConsoleApp2Strings`
 - Alter both `.csproj` files and add `<DebugType>None</DebugType>` to it.
 - Build both projects and check the strings output again same way described above. 
 
