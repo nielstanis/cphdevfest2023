@@ -12,14 +12,14 @@ A library called `docgenerator` that has been published on feedz.io can be used 
 ## Lab 1 - Signing artifacts with SigStore
 
 In order to do this locally you need to get cosign installed:
-
 https://edu.chainguard.dev/open-source/sigstore/cosign/how-to-install-cosign/ 
 
 Or grab the platform specific binaries from the last releases for:
-
 - https://github.com/sigstore/cosign/releases
 - https://github.com/sigstore/rekor/releases
 - https://github.com/jqlang/jq/releases
+
+Then do the following things:
 
 - `echo "Hello København" >> cphdevfest.txt`
 - `COSIGN_EXPERIMENTAL=1 cosign sign-blob --rekor-url https://rekor.sigstore.dev --oidc-issuer https://oauth2.sigstore.dev/auth cphdevfest.txt` We need the ID returned for the next step. 
