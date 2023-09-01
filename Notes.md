@@ -28,8 +28,8 @@ Then we're going to do the following things:
   - `cat output.json | jq -r '.Body.HashedRekordObj.signature.publicKey.content' | base64 -d > pub.crt`
   - `openssl x509 -noout -text -in pub.crt`
 - Windows
-  - `type output.json | jq -r '.Body.HashedRekordObj.signature.content' > cphdevfest.txt.sig`
-  - `type output.json | jq -r '.Body.HashedRekordObj.signature.publicKey.content' > pub.b64`
+  - `type output.json | jq -r ".Body.HashedRekordObj.signature.content" > cphdevfest.txt.sig`
+  - `type output.json | jq -r ".Body.HashedRekordObj.signature.publicKey.content" > pub.b64`
   - `certutil -decode pub.b64 pub.crt`
   - View certificate details in Windows Explorer
 - Did you notice how long the certificate was valid?
@@ -281,7 +281,7 @@ jobs:
 - Next up is to download the generated artifact, zip containing SBOM and NuGet and SLSA provenance and check out it's contents.
 - Extract payload and decode from `multiple.intoto.json` by executing
   - MacOSX/Linux: `cat multiple.intoto.jsonl | jq -r '.payload' | base64 -d > payload.json`
-  - Windows: `type multiple.intoto.jsonl | jq -r '.payload' > payload.b64` and `certutil -decode payload.b64 payload.json`
+  - Windows: `type multiple.intoto.jsonl | jq -r ".payload" > payload.b64` and `certutil -decode payload.b64 payload.json`
 - Generate SHA256 has of both SBOM and NuGet Package and cross check:
   - MacOSX/Linux: `shasum -a 256 docgenerator.1.0.0.nupkg bom.json` 
   - Windows: `certUtil -hashfile docgenerator.1.0.0.nupkg SHA256` and `certUtil -hashfile bom.json SHA256`
@@ -488,7 +488,7 @@ jobs:
 We can get cosign (if installed locally) to verify as well, it also makes sense to look into the generated data by doing the following:
 
 - `rekor-cli get --log-index IDREG --format json | jq > output.json`
-- `cat output.json | jq -r '.Body.HashedRekordObj.signature.publicKey.content' | base64 -d > pub.crt`
+- `cat output.json | jq -r ".Body.HashedRekordObj.signature.publicKey.content" | base64 -d > pub.crt`
 - `openssl x509 -noout -text -in pub.crt`
 - `cosign verify ghcr.io/GITHUBACCOUNT/docwebgen:latest`
 
